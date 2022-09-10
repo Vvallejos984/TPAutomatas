@@ -3,13 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-int potenciar(int, int);
-void pushPilaNumChar(char[]);
-char * popPilaNumChar();
-int cadenaANum(char*, int);
-int simboloCoincide(char, char[]);
-int validarCadena(char[]);
-
 struct nodoPilaNum{
     int val;
     struct nodoPilaNum *sig;
@@ -25,16 +18,10 @@ struct nodoPilaOperador{
     struct nodoPilaOperador *sig;
 };
 
-char octales[] = "1234567";
-char hexadecimales[] = "123456789ABCDEF";
-
-char terminalesEntero[3][10]={"-","0","123456789"};
-
-int estadosEntero[3][3]={
-    {1,3,2},
-    {3,3,2},
-    {3,2,2}
-};
+typedef struct cadenaNum{
+    char *val;
+    int tipoNum; //0 dec, 1 oct, 2 hex
+}cadenaNum;
 
 char terminalesDecOctHex[6][17]={
     "-",
@@ -58,12 +45,28 @@ int estadosAutomata[7][6]={
 struct nodoPilaNum *headPilaNum;
 struct nodoPilaNumChar *headPilaNumChar;
 struct nodoPilaOperador *headPilaOperador;
+
+int potenciar(int, int);
+void pushPilaNumChar(char[]);
+char * popPilaNumChar();
+int cadenaDecADec(char*);
+int cadenaOctADec(char*);
+int cadenaHexADec(char*);
+int cadenaANum(cadenaNum);
+int simboloCoincide(char, char[]);
+int validarCadena(char[]);
+
+
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
 int main(){
-    char cadena[] = "0x135AFCE42AF";
-    //printf("%d", cadenaANum(cadena, sizeof(cadena)));
-    validarCadena(cadena);
+    cadenaNum cadena = {.val="0x4AF"};
+    cadena.tipoNum = validarCadena(cadena.val);
+
+    getchar();
+    system("cls");
+    int lel = cadenaANum(cadena);
+    printf("Resultado: %d\n", lel);
 }
 //-----------------------------------------
 
@@ -90,6 +93,7 @@ void pushPilaNum(int val){
         ptr->sig = headPilaNum;
         headPilaNum = ptr;
     }
+    //printf("Pushed %d\n", headPilaNum->val); //Debug message
 }
 
 int popPilaNum(){
@@ -137,15 +141,69 @@ char *popPilaNumChar(){
     return 0;
 }
 
-int cadenaANum(char cadena[], int size){
-    int res=0;
-    for(int i=0; i<size-1; i++){
-        pushPilaNum(cadena[i]-'0');
+int cadenaDecADec(char cadena[]){
+    int i = 0,
+    res = 0,
+    size = 0,
+    sgn = 1;
+
+    if(cadena[0]=='-'){
+        i = 1;
+        sgn = (-1);
     }
-    for(int i=0; i<size-1; i++){
+    while(cadena[i]!='\0'){
+        pushPilaNum(cadena[i]-'0');
+        i+=1;
+        size+=1;
+    }
+    for(i=0; i<size; i++){
         res += popPilaNum()*potenciar(10,i);
     }
+    return res*sgn;
+}
+
+int cadenaOctADec(char cadena[]){
+    int i = 1,
+    res = 0,
+    size = 0;
+
+    while(cadena[i]!='\0'){
+        pushPilaNum(cadena[i]-'0');
+        i+=1;
+        size+=1;
+    }
+    for(i=0; i<size; i++){
+        res += popPilaNum()*potenciar(8,i);
+    }
     return res;
+}
+
+int cadenaHexADec(char cadena[]){
+    int i = 2,
+    res = 0,
+    size = 0;
+
+    while(cadena[i]!='\0'){
+        if(isdigit(cadena[i]))
+            pushPilaNum(cadena[i]-'0');
+        else
+            pushPilaNum(cadena[i]-'A'+10);
+        i+=1;
+        size+=1;
+    }
+    for(i=0; i<size; i++){
+        res += popPilaNum()*potenciar(16,i);
+    }
+    return res;
+}
+
+int cadenaANum(cadenaNum cadena){
+    switch(cadena.tipoNum){
+        case 0: printf("Cadena invalida\n"); return 0;
+        case 1: return cadenaDecADec(cadena.val);
+        case 2: return cadenaOctADec(cadena.val);
+        case 3: return cadenaHexADec(cadena.val);
+    }
 }
 
 int simboloCoincide(char input, char carac[]){
@@ -160,17 +218,28 @@ int simboloCoincide(char input, char carac[]){
 }
 
 int validarCadena(char cadena[]){
+    int tipo = 0;
     int estado = 0;
     int caracter = 0;
-    while(estado!=7){
-        if(cadena[caracter]=='\0'){
-            printf("Cadena '%s' valida", cadena);
-            return 1;
+    while(estado!=6){
+        if(cadena[caracter]=='\0' && caracter!=0){
+            printf("Cadena '%s' valida\n", cadena);
+            switch(estado){
+                case 1: tipo=1; printf("Es decimal\n"); break;
+                case 3: tipo=2; printf("Es octal\n"); break;
+                case 5: tipo=3; printf("Es hexadecimal\n"); break;
+                default: tipo = 0; 
+            }
+            break;
         }
+        if(cadena[0]=='\0'){
+            estado=6;
+            break;
+        } 
         int caracterValido = 0;
-        printf("Estado actual: %d\n\n", estado);
+        printf("Estado actual: %d\n\n", estado); //Debug message
         for(int i=0; i<6; i++){
-            printf("Mirando columna %d\n", i);
+            printf("Mirando columna %d\n", i); //Debug message
             if(simboloCoincide(cadena[caracter], terminalesDecOctHex[i])){
                 estado = estadosAutomata[estado][i];
                 printf("Cambio a estado %d\n", estado);
@@ -179,17 +248,19 @@ int validarCadena(char cadena[]){
             }
         }
         if(!caracterValido){
-            estado=7;
-            printf("Cambio a estado %d\n", estado);
+            estado=6;
+            printf("Cambio a estado %d\n", estado); //Debug message
         }
 
         else{
-            printf("Caracter '%c' OK\n\n", cadena[caracter]);
+            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
             caracter+=1;
         }
         
-        
     }
-    printf("Cadena '%s' invalida",cadena);
-    return 0;
+    if(estado==6){
+        printf("Cadena '%s' invalida",cadena);
+    }
+        
+    return tipo;
 }
