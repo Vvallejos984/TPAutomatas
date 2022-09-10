@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 struct nodoPilaNum{
     int val;
@@ -19,7 +20,7 @@ struct nodoPilaOperador{
 };
 
 typedef struct cadenaNum{
-    char *val;
+    char val[100];
     int tipoNum; //0 dec, 1 oct, 2 hex
 }cadenaNum;
 
@@ -55,14 +56,18 @@ int cadenaHexADec(char*);
 int cadenaANum(cadenaNum);
 int simboloCoincide(char, char[]);
 int validarCadena(char[]);
+int validarMultipleCadena(char[]);
 
 
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
 int main(){
-    cadenaNum cadena = {.val="0x4AF"};
+    cadenaNum cadena;
+    scanf("%s", cadena.val);
+    printf("\nCadena: %s", cadena.val);
     cadena.tipoNum = validarCadena(cadena.val);
-
+    
+    getchar();
     getchar();
     system("cls");
     int lel = cadenaANum(cadena);
@@ -221,7 +226,7 @@ int validarCadena(char cadena[]){
     int tipo = 0;
     int estado = 0;
     int caracter = 0;
-    while(estado!=6){
+    while(estado!=7){
         if(cadena[caracter]=='\0' && caracter!=0){
             printf("Cadena '%s' valida\n", cadena);
             switch(estado){
@@ -233,7 +238,7 @@ int validarCadena(char cadena[]){
             break;
         }
         if(cadena[0]=='\0'){
-            estado=6;
+            estado=7;
             break;
         } 
         int caracterValido = 0;
@@ -248,7 +253,7 @@ int validarCadena(char cadena[]){
             }
         }
         if(!caracterValido){
-            estado=6;
+            estado=7;
             printf("Cambio a estado %d\n", estado); //Debug message
         }
 
@@ -258,7 +263,7 @@ int validarCadena(char cadena[]){
         }
         
     }
-    if(estado==6){
+    if(estado==7){
         printf("Cadena '%s' invalida",cadena);
     }
         
