@@ -4,8 +4,8 @@
 #include <string.h>
 
 int potenciar(int, int);
-void pushPilaChar(char*);
-const char * popPilaChar();
+void pushPilaNumChar(char[]);
+char * popPilaNumChar();
 int cadenaANum(char*, int);
 int simboloCoincide(char, char[]);
 int validarCadena(char[]);
@@ -15,9 +15,14 @@ struct nodoPilaNum{
     struct nodoPilaNum *sig;
 };
 
-struct nodoPilaChar{
+struct nodoPilaNumChar{
     char val[30];
-    struct nodoPilaChar *sig;
+    struct nodoPilaNumChar *sig;
+};
+
+struct nodoPilaOperador{
+    char val[2];
+    struct nodoPilaOperador *sig;
 };
 
 char octales[] = "1234567";
@@ -25,26 +30,39 @@ char hexadecimales[] = "123456789ABCDEF";
 
 char terminalesEntero[3][10]={"-","0","123456789"};
 
-int estadosEntero[4][3]={
-    {2,4,3},
-    {4,4,3},
-    {4,3,3},
-    {4,4,4}
+int estadosEntero[3][3]={
+    {1,3,2},
+    {3,3,2},
+    {3,2,2}
+};
+
+char terminalesDecOctHex[6][17]={
+    "-",
+    "0",
+    "1234567",
+    "89",
+    "ABCDEF",
+    "x"
+};
+
+int estadosAutomata[7][6]={
+    {6,2,1,1,7,7},
+    {7,1,1,1,7,7},
+    {7,7,3,7,7,4},
+    {7,3,3,7,7,7},
+    {7,7,5,5,5,7},
+    {7,5,5,5,5,7},
+    {7,7,1,1,7,7},
 };
 
 struct nodoPilaNum *headPilaNum;
-struct nodoPilaChar *headPilaChar;
+struct nodoPilaNumChar *headPilaNumChar;
+struct nodoPilaOperador *headPilaOperador;
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
 int main(){
-    char cadena[] = "-33482";
-    /*char * roberto = "roberto";
-    char * juancarlos = "juancarlos";
+    char cadena[] = "0x135AFCE42AF";
     //printf("%d", cadenaANum(cadena, sizeof(cadena)));
-    pushPilaChar(roberto);
-    pushPilaChar(juancarlos);
-    printf("%s \n",popPilaChar());
-    printf("%s \n",popPilaChar());*/
     validarCadena(cadena);
 }
 //-----------------------------------------
@@ -88,31 +106,31 @@ int popPilaNum(){
     return 0;
 }
 
-void pushPilaChar(char *val){
-    struct nodoPilaChar *ptr = (struct nodoPilaChar *)malloc(sizeof(struct nodoPilaChar));
+void pushPilaNumChar(char val[]){
+    struct nodoPilaNumChar *ptr = (struct nodoPilaNumChar *)malloc(sizeof(struct nodoPilaNumChar));
 
-    if (headPilaChar == NULL)
+    if (headPilaNumChar == NULL)
     {
         strcpy(ptr->val, val);
         ptr->sig = NULL;
-        headPilaChar = ptr;
+        headPilaNumChar = ptr;
     }
     else
     {
         strcpy(ptr->val, val);
-        ptr->sig = headPilaChar;
-        headPilaChar = ptr;
+        ptr->sig = headPilaNumChar;
+        headPilaNumChar = ptr;
     }
 }
 
-const char *popPilaChar(){
-    char *item;
-    struct nodoPilaChar *ptr;
-    if (headPilaChar != NULL)
+char *popPilaNumChar(){
+    static char item[]="";
+    struct nodoPilaNumChar *ptr;
+    if (headPilaNumChar != NULL)
     {
-        strcpy(item, headPilaChar->val);
-        ptr = headPilaChar;
-        headPilaChar = headPilaChar->sig;
+        strcpy(item, headPilaNumChar->val);
+        ptr = headPilaNumChar;
+        headPilaNumChar = headPilaNumChar->sig;
         free(ptr);
         return item;
     }
@@ -142,22 +160,29 @@ int simboloCoincide(char input, char carac[]){
 }
 
 int validarCadena(char cadena[]){
-    int estado = 1;
+    int estado = 0;
     int caracter = 0;
-    while(estado!=4){
+    while(estado!=7){
         if(cadena[caracter]=='\0'){
-            printf("Cadena valida");
+            printf("Cadena '%s' valida", cadena);
             return 1;
         }
         int caracterValido = 0;
-        for(int i=0; i<3; i++){
+        printf("Estado actual: %d\n\n", estado);
+        for(int i=0; i<6; i++){
             printf("Mirando columna %d\n", i);
-            caracterValido += simboloCoincide(cadena[caracter], terminalesEntero[i]);
-            if(caracterValido>0)
+            if(simboloCoincide(cadena[caracter], terminalesDecOctHex[i])){
+                estado = estadosAutomata[estado][i];
+                printf("Cambio a estado %d\n", estado);
+                caracterValido = 1;
                 break;
+            }
         }
-        if(caracterValido==0)
-            estado=4;
+        if(!caracterValido){
+            estado=7;
+            printf("Cambio a estado %d\n", estado);
+        }
+
         else{
             printf("Caracter '%c' OK\n\n", cadena[caracter]);
             caracter+=1;
@@ -165,6 +190,6 @@ int validarCadena(char cadena[]){
         
         
     }
-    printf("Caracter invalido %c",cadena[caracter]);
+    printf("Cadena '%s' invalida",cadena);
     return 0;
 }
