@@ -230,7 +230,7 @@ int cadenaANum(cadenaNum cadena){
 int simboloCoincide(char input, char carac[]){
     int i = 0;
     while(carac[i]!='\0'){
-//        printf("%c == %c\n",input,carac[i]);
+        printf("%c == %c\n",input,carac[i]);
         if(input == carac[i])
             return 1;
         i+=1;
@@ -244,7 +244,7 @@ int validarCadena(char cadena[]){
     int caracter = 0;
     while(estado!=7){
         if(cadena[caracter]=='\0' && caracter!=0){
-//            printf("Cadena '%s' valida\n", cadena);
+            printf("Cadena '%s' valida\n", cadena);
             switch(estado){
                 case 1: tipo=1; printf("Es decimal\n"); break;
                 case 3: tipo=2; printf("Es octal\n"); break;
@@ -258,23 +258,23 @@ int validarCadena(char cadena[]){
             break;
         } 
         int caracterValido = 0;
-//        printf("Estado actual: %d\n\n", estado); //Debug message
+        printf("Estado actual: %d\n\n", estado); //Debug message
         for(int i=0; i<6; i++){
-//            printf("Mirando columna %d\n", i); //Debug message
+            printf("Mirando columna %d\n", i); //Debug message
             if(simboloCoincide(cadena[caracter], terminalesDecOctHex[i])){
                 estado = estadosAutomata[estado][i];
-//                printf("Cambio a estado %d\n", estado);
+                printf("Cambio a estado %d\n", estado);
                 caracterValido = 1;
                 break;
             }
         }
         if(!caracterValido){
             estado=7;
-//            printf("Cambio a estado %d\n", estado); //Debug message
+            printf("Cambio a estado %d\n", estado); //Debug message
         }
 
         else{
-//            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
+            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
             caracter+=1;
         }
         
@@ -285,25 +285,6 @@ int validarCadena(char cadena[]){
         
     return tipo;
 }
-
-//void pushCola(struct NodoColaNum **nodo, char *nombre){
-//    struct NodoColaNum *nuevoNodo = malloc(sizeof(struct NodoColaNum));
-//    strcpy(nuevoNodo->numerosString, nombre);
-//    nuevoNodo->next = NULL;
-//    if ((*nodo) == NULL){
-//        *nodo = nuevoNodo;
-//    }
-//    else{
-//        pushCola(&(*nodo)->next, nombre);
-//    }
-//}
-
-//void recorrerCola(struct NodoColaNum *cola){
-//    while (cola != NULL){
-//        printf("Numero en la cola: '%s'\n", cola->numerosString);
-//        cola = cola->next;
-//    }
-//}
 
 int vacia(){
     if (headColaNum == NULL)
@@ -343,8 +324,6 @@ void separarPorTerminos(char cadena[]){
     int i = 0;
     char acumulador[100] = "";
 
-    struct NodoColaNum *nodoColaNum = NULL;
-
     long sizeChar = strlen(cadena);
     printf("Size of the expression: %ld\n", sizeChar);
     while(sizeChar + 1 > i){
@@ -367,23 +346,23 @@ void separarPorTerminos(char cadena[]){
 
             int decimalResult = cadenaANum(cadenaNum1);
 
-//            printf("Actualmente analizando decimalResulta: %d\n", decimalResult);
-
 //            Convierte de int a string
             sprintf(stringResult, "%d", decimalResult);
 
             printf("** Resultado que se va a poner en cola: %s\n", stringResult);
 
 //            agregar a la cola lo acumulado de la expresion strings de decimales
-//            pushCola(&nodoColaNum, stringResult);
             pushCola(stringResult);
+
 //            Vaciar acumulador
             strcpy(acumulador, "");
         }
         i++;
     }
+//    expresiones de prueba
 //123+41-4*3542
 //123+4124+3151+346
+
     recorrerCola();
 }
 
