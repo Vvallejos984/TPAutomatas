@@ -14,9 +14,9 @@ struct nodoPilaNumChar{
     struct nodoPilaNumChar *sig;
 };
 
-struct NodoColaNum{
-    char numerosString[100];
-    struct NodoColaNum *next;
+struct colaDeNumeros{
+    char valor[100];
+    struct colaDeNumeros *next;
 };
 
 struct nodoPilaOperador{
@@ -34,7 +34,7 @@ char terminalesDecOctHex[6][17]={
     "0",
     "1234567",
     "89",
-    "ABCDEF",
+    "ABCDEFabcdef",
     "x"
 };
 
@@ -52,8 +52,8 @@ struct nodoPilaNum *headPilaNum;
 struct nodoPilaNumChar *headPilaNumChar;
 struct nodoPilaOperador *headPilaOperador;
 
-struct NodoColaNum *headColaNum = NULL;
-struct NodoColaNum *tailColaNum = NULL;
+struct colaDeNumeros *headColaNum = NULL;
+struct colaDeNumeros *tailColaNum = NULL;
 
 int potenciar(int, int);
 void pushPilaNumChar(char[]);
@@ -68,7 +68,7 @@ int validarMultipleCadena(char[]);
 void separarPorTerminos(char[]);
 void pushCola(char*);
 void recorrerCola();
-//struct NodoColaNum **nodo,
+//struct colaDeNumeros **nodo,
 
 
 //gcc pilas.c -o pilas && pilas.exe
@@ -87,7 +87,7 @@ int main(){
 
 //  Expresiones de prueba con todo tipo de bases
 //  0173+0x29-4+06726+0xA1DC+10 (misma que EXP.1 pero mezclado con otras bases)
-
+//  0173+0x29-4+06726+0xa1dc+10
     printf("*********CADENA SEPARADA POR TERMINOS********\n");
     separarPorTerminos(cadena.val);
 
@@ -254,7 +254,7 @@ int validarCadena(char cadena[]){
     int caracter = 0;
     while(estado!=7){
         if(cadena[caracter]=='\0' && caracter!=0){
-            printf("Cadena '%s' valida\n", cadena);
+            printf("Cadena '%s' valida - ", cadena);
             switch(estado){
                 case 1: tipo=1; printf("Es decimal\n"); break;
                 case 3: tipo=2; printf("Es octal\n"); break;
@@ -304,9 +304,9 @@ int vacia(){
 }
 
 void pushCola(char *x){
-    struct NodoColaNum *nuevo;
-    nuevo=malloc(sizeof(struct NodoColaNum));
-    strcpy(nuevo->numerosString, x);
+    struct colaDeNumeros *nuevo;
+    nuevo=malloc(sizeof(struct colaDeNumeros));
+    strcpy(nuevo->valor, x);
     nuevo->next = NULL;
     if (vacia()){
         headColaNum = nuevo;
@@ -319,11 +319,11 @@ void pushCola(char *x){
 }
 
 void recorrerCola(){
-    struct NodoColaNum *reco = headColaNum;
+    struct colaDeNumeros *reco = headColaNum;
     printf("Listado de todos los elementos de la cola.\n");
     while (reco != NULL)
     {
-        printf("%s - ", reco->numerosString);
+        printf("%s - ", reco->valor);
         reco = reco->next;
     }
     printf("\n");
@@ -359,7 +359,7 @@ void separarPorTerminos(char cadena[]){
 //            Convierte de int a string
             sprintf(stringResult, "%d", decimalResult);
 
-            printf("** Resultado que se va a poner en cola: %s\n", stringResult);
+            printf("** Resultado que se va a poner en cola en decimal: %s\n", stringResult);
 
 //            agregar a la cola lo acumulado de la expresion strings de decimales
             pushCola(stringResult);
