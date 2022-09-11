@@ -67,6 +67,7 @@ int validarCadena(char[]);
 int validarMultipleCadena(char[]);
 void separarPorTerminos(char[]);
 void pushCola(char*);
+void recorrerCola();
 //struct NodoColaNum **nodo,
 
 
@@ -80,8 +81,17 @@ int main(){
 //    cadena.tipoNum = validarCadena(cadena.val);
 
 
+//  Expresiones de prueba todo decimal
+//  Exp1. 123+41-4*3542+41436+10
+//  Exp2. 123+4124+3151+346
+
+//  Expresiones de prueba con todo tipo de bases
+//  0173+0x29-4+06726+0xA1DC+10 (misma que EXP.1 pero mezclado con otras bases)
+
     printf("*********CADENA SEPARADA POR TERMINOS********\n");
     separarPorTerminos(cadena.val);
+
+    recorrerCola();
     
 //    getchar();
 //    getchar();
@@ -230,7 +240,7 @@ int cadenaANum(cadenaNum cadena){
 int simboloCoincide(char input, char carac[]){
     int i = 0;
     while(carac[i]!='\0'){
-        printf("%c == %c\n",input,carac[i]);
+//        printf("%c == %c\n",input,carac[i]);
         if(input == carac[i])
             return 1;
         i+=1;
@@ -258,23 +268,23 @@ int validarCadena(char cadena[]){
             break;
         } 
         int caracterValido = 0;
-        printf("Estado actual: %d\n\n", estado); //Debug message
+//        printf("Estado actual: %d\n\n", estado); //Debug message
         for(int i=0; i<6; i++){
-            printf("Mirando columna %d\n", i); //Debug message
+//            printf("Mirando columna %d\n", i); //Debug message
             if(simboloCoincide(cadena[caracter], terminalesDecOctHex[i])){
                 estado = estadosAutomata[estado][i];
-                printf("Cambio a estado %d\n", estado);
+//                printf("Cambio a estado %d\n", estado);
                 caracterValido = 1;
                 break;
             }
         }
         if(!caracterValido){
             estado=7;
-            printf("Cambio a estado %d\n", estado); //Debug message
+//            printf("Cambio a estado %d\n", estado); //Debug message
         }
 
         else{
-            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
+//            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
             caracter+=1;
         }
         
@@ -330,13 +340,13 @@ void separarPorTerminos(char cadena[]){
 //        Cuando detecta \0 no analiza lo que paso (se soluciona con sizeof xd)
         if(cadena[i] != '+' && cadena[i] != '-' && cadena[i] != '*' && cadena[i] != '&' && cadena[i] != '\0' && cadena[i] != ' ') {
 
-            printf("Actualmente analizando en if: %c\n", cadena[i]);
+//            printf("Actualmente analizando en if: %c\n", cadena[i]);
             strncat(acumulador, &cadena[i], 1);
 
         } else{
             char stringResult[100];
 
-            printf("Actualmente analizando en else: %c\n", cadena[i]);
+//            printf("Actualmente analizando en else: %c\n", cadena[i]);
 
             cadenaNum cadenaNum1 = {
                     .tipoNum=validarCadena(acumulador)
@@ -359,11 +369,6 @@ void separarPorTerminos(char cadena[]){
         }
         i++;
     }
-//    expresiones de prueba
-//123+41-4*3542
-//123+4124+3151+346
-
-    recorrerCola();
 }
 
 // Crear 2 colas para numeros y para notacion polaca y Pila para operadores
