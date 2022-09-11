@@ -24,6 +24,10 @@ typedef struct cadenaNum{
     int tipoNum; //0 dec, 1 oct, 2 hex
 }cadenaNum;
 
+typedef struct cadenaNum{
+
+};
+
 char terminalesDecOctHex[6][17]={
     "-",
     "0",
@@ -57,7 +61,7 @@ int cadenaANum(cadenaNum);
 int simboloCoincide(char, char[]);
 int validarCadena(char[]);
 int validarMultipleCadena(char[]);
-
+void separarPorTerminos(char[]);
 
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
@@ -66,6 +70,9 @@ int main(){
     scanf("%s", cadena.val);
     printf("\nCadena: %s", cadena.val);
     cadena.tipoNum = validarCadena(cadena.val);
+
+
+
     
     getchar();
     getchar();
@@ -269,3 +276,43 @@ int validarCadena(char cadena[]){
         
     return tipo;
 }
+
+// 1. Convertir todos los numeros de X a decimal, separando por terminos (+, -, *)
+void separarPorTerminos(char cadena[]){
+    int i = 0;
+    char acumulador[100];
+
+    while (cadena[i] != '\0'){
+        if(cadena[i] != '+' || cadena[i] != '-' || cadena[i] != '*' || cadena[i] != '&' || cadena[i] != '\0') {
+//            acumulador[i] = cadena[i];
+            strcat(acumulador, cadena[i]);
+//
+        } else{
+
+            cadenaNum cadenaNum1 = {
+                    .tipoNum=validarCadena(acumulador)
+            };
+
+            strcpy(cadenaNum1.val, acumulador);
+
+            int decimalResult = cadenaANum(cadenaNum1);
+
+            char stringResult[100];
+
+            sprintf(stringResult, "%d", decimalResult);
+
+            printf("Resultado %s\n", stringResult);
+
+//            agregar a la cola lo acumulado de la expresion strings de decimales
+
+            strcpy(acumulador, "");
+        }
+        i++;
+    }
+}
+
+// Crear 2 colas para numeros y para notacion polaca y Pila para operadores
+// Sacar elementos de la primera cola
+// 2. Convertirlos a string para ponerlos en la cola (numeros)
+// 3. Agregar los operadores en una pila
+// 4. Descomponer la cola y operar
