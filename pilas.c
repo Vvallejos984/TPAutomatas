@@ -14,6 +14,11 @@ struct nodoPilaNumChar{
     struct nodoPilaNumChar *sig;
 };
 
+struct NodoColaNum{
+    char numerosString[100];
+    struct NodoColaNum *next;
+};
+
 struct nodoPilaOperador{
     char val[2];
     struct nodoPilaOperador *sig;
@@ -23,10 +28,6 @@ typedef struct cadenaNum{
     char val[100];
     int tipoNum; //0 dec, 1 oct, 2 hex
 }cadenaNum;
-
-typedef struct cadenaNum{
-
-};
 
 char terminalesDecOctHex[6][17]={
     "-",
@@ -51,6 +52,9 @@ struct nodoPilaNum *headPilaNum;
 struct nodoPilaNumChar *headPilaNumChar;
 struct nodoPilaOperador *headPilaOperador;
 
+struct NodoColaNum *headColaNum = NULL;
+struct NodoColaNum *tailColaNum = NULL;
+
 int potenciar(int, int);
 void pushPilaNumChar(char[]);
 char * popPilaNumChar();
@@ -62,23 +66,28 @@ int simboloCoincide(char, char[]);
 int validarCadena(char[]);
 int validarMultipleCadena(char[]);
 void separarPorTerminos(char[]);
+void pushCola(char*);
+//struct NodoColaNum **nodo,
+
 
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
 int main(){
     cadenaNum cadena;
+//    printf("Expresion a analizar:\n");
     scanf("%s", cadena.val);
-    printf("\nCadena: %s", cadena.val);
-    cadena.tipoNum = validarCadena(cadena.val);
+//    printf("\nCadena: %s\n", cadena.val);
+//    cadena.tipoNum = validarCadena(cadena.val);
 
 
-
+    printf("*********CADENA SEPARADA POR TERMINOS********\n");
+    separarPorTerminos(cadena.val);
     
-    getchar();
-    getchar();
-    system("cls");
-    int lel = cadenaANum(cadena);
-    printf("Resultado: %d\n", lel);
+//    getchar();
+//    getchar();
+//    system("cls");
+//    int lel = cadenaANum(cadena);
+//    printf("Resultado: %d\n", lel);
 }
 //-----------------------------------------
 
@@ -211,7 +220,7 @@ int cadenaHexADec(char cadena[]){
 
 int cadenaANum(cadenaNum cadena){
     switch(cadena.tipoNum){
-        case 0: printf("Cadena invalida\n"); return 0;
+        case 0: printf("Cadena invalida\n"); return -0;
         case 1: return cadenaDecADec(cadena.val);
         case 2: return cadenaOctADec(cadena.val);
         case 3: return cadenaHexADec(cadena.val);
@@ -221,7 +230,7 @@ int cadenaANum(cadenaNum cadena){
 int simboloCoincide(char input, char carac[]){
     int i = 0;
     while(carac[i]!='\0'){
-        printf("%c == %c\n",input,carac[i]);
+//        printf("%c == %c\n",input,carac[i]);
         if(input == carac[i])
             return 1;
         i+=1;
@@ -235,7 +244,7 @@ int validarCadena(char cadena[]){
     int caracter = 0;
     while(estado!=7){
         if(cadena[caracter]=='\0' && caracter!=0){
-            printf("Cadena '%s' valida\n", cadena);
+//            printf("Cadena '%s' valida\n", cadena);
             switch(estado){
                 case 1: tipo=1; printf("Es decimal\n"); break;
                 case 3: tipo=2; printf("Es octal\n"); break;
@@ -249,45 +258,106 @@ int validarCadena(char cadena[]){
             break;
         } 
         int caracterValido = 0;
-        printf("Estado actual: %d\n\n", estado); //Debug message
+//        printf("Estado actual: %d\n\n", estado); //Debug message
         for(int i=0; i<6; i++){
-            printf("Mirando columna %d\n", i); //Debug message
+//            printf("Mirando columna %d\n", i); //Debug message
             if(simboloCoincide(cadena[caracter], terminalesDecOctHex[i])){
                 estado = estadosAutomata[estado][i];
-                printf("Cambio a estado %d\n", estado);
+//                printf("Cambio a estado %d\n", estado);
                 caracterValido = 1;
                 break;
             }
         }
         if(!caracterValido){
             estado=7;
-            printf("Cambio a estado %d\n", estado); //Debug message
+//            printf("Cambio a estado %d\n", estado); //Debug message
         }
 
         else{
-            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
+//            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
             caracter+=1;
         }
         
     }
     if(estado==7){
-        printf("Cadena '%s' invalida",cadena);
+        printf("Cadena '%s' invalida\n",cadena);
     }
         
     return tipo;
 }
 
+//void pushCola(struct NodoColaNum **nodo, char *nombre){
+//    struct NodoColaNum *nuevoNodo = malloc(sizeof(struct NodoColaNum));
+//    strcpy(nuevoNodo->numerosString, nombre);
+//    nuevoNodo->next = NULL;
+//    if ((*nodo) == NULL){
+//        *nodo = nuevoNodo;
+//    }
+//    else{
+//        pushCola(&(*nodo)->next, nombre);
+//    }
+//}
+
+//void recorrerCola(struct NodoColaNum *cola){
+//    while (cola != NULL){
+//        printf("Numero en la cola: '%s'\n", cola->numerosString);
+//        cola = cola->next;
+//    }
+//}
+
+int vacia(){
+    if (headColaNum == NULL)
+        return 1;
+    else
+        return 0;
+}
+
+void pushCola(char *x){
+    struct NodoColaNum *nuevo;
+    nuevo=malloc(sizeof(struct NodoColaNum));
+    strcpy(nuevo->numerosString, x);
+    nuevo->next = NULL;
+    if (vacia()){
+        headColaNum = nuevo;
+        tailColaNum = nuevo;
+    }
+    else{
+        tailColaNum->next = nuevo;
+        tailColaNum = nuevo;
+    }
+}
+
+void recorrerCola(){
+    struct NodoColaNum *reco = headColaNum;
+    printf("Listado de todos los elementos de la cola.\n");
+    while (reco != NULL)
+    {
+        printf("%s - ", reco->numerosString);
+        reco = reco->next;
+    }
+    printf("\n");
+}
+
 // 1. Convertir todos los numeros de X a decimal, separando por terminos (+, -, *)
 void separarPorTerminos(char cadena[]){
     int i = 0;
-    char acumulador[100];
+    char acumulador[100] = "";
 
-    while (cadena[i] != '\0'){
-        if(cadena[i] != '+' || cadena[i] != '-' || cadena[i] != '*' || cadena[i] != '&' || cadena[i] != '\0') {
-//            acumulador[i] = cadena[i];
-            strcat(acumulador, cadena[i]);
-//
+    struct NodoColaNum *nodoColaNum = NULL;
+
+    long sizeChar = strlen(cadena);
+    printf("Size of the expression: %ld\n", sizeChar);
+    while(sizeChar + 1 > i){
+//        Cuando detecta \0 no analiza lo que paso (se soluciona con sizeof xd)
+        if(cadena[i] != '+' && cadena[i] != '-' && cadena[i] != '*' && cadena[i] != '&' && cadena[i] != '\0' && cadena[i] != ' ') {
+
+            printf("Actualmente analizando en if: %c\n", cadena[i]);
+            strncat(acumulador, &cadena[i], 1);
+
         } else{
+            char stringResult[100];
+
+            printf("Actualmente analizando en else: %c\n", cadena[i]);
 
             cadenaNum cadenaNum1 = {
                     .tipoNum=validarCadena(acumulador)
@@ -297,18 +367,24 @@ void separarPorTerminos(char cadena[]){
 
             int decimalResult = cadenaANum(cadenaNum1);
 
-            char stringResult[100];
+//            printf("Actualmente analizando decimalResulta: %d\n", decimalResult);
 
+//            Convierte de int a string
             sprintf(stringResult, "%d", decimalResult);
 
-            printf("Resultado %s\n", stringResult);
+            printf("** Resultado que se va a poner en cola: %s\n", stringResult);
 
 //            agregar a la cola lo acumulado de la expresion strings de decimales
-
+//            pushCola(&nodoColaNum, stringResult);
+            pushCola(stringResult);
+//            Vaciar acumulador
             strcpy(acumulador, "");
         }
         i++;
     }
+//123+41-4*3542
+//123+4124+3151+346
+    recorrerCola();
 }
 
 // Crear 2 colas para numeros y para notacion polaca y Pila para operadores

@@ -1,3 +1,21 @@
 # ninja log v5
-0	34	1662852949212370863	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
-34	47	1662852949224371010	ideasTPSintaxis	e3f0e2b585b7a1b1
+1	144	1662929150943702648	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+144	194	1662929150991703139	ideasTPSintaxis	e3f0e2b585b7a1b1
+1	115	1662929176011761681	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+115	190	1662929176083760680	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	87	1662929206527353993	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+87	122	1662929206563353532	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	46	1662929241890922724	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+46	70	1662929241914922446	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	83	1662929321666097677	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+84	116	1662929321702097348	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	88	1662929415465356544	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+88	144	1662929415521356168	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	75	1662929533996712919	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+75	115	1662929534032712767	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	67	1662930359129195426	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+67	94	1662930359153195508	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	128	1662930456089544072	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+128	149	1662930456109544148	ideasTPSintaxis	e3f0e2b585b7a1b1
+0	89	1662930544801888651	CMakeFiles/ideasTPSintaxis.dir/pilas.c.o	b9c7baab73436fd4
+89	193	1662930544885888987	ideasTPSintaxis	e3f0e2b585b7a1b1
