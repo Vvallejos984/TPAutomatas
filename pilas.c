@@ -4,28 +4,17 @@
 #include <string.h>
 #include <ctype.h>
 
-struct nodoPilaNum{
+struct nodoNum{
     int val;
-    struct nodoPilaNum *sig;
+    struct nodoNum *sig;
 };
 
-struct nodoPilaNumChar{
+struct nodoString{
     char val[30];
-    struct nodoPilaNumChar *sig;
+    struct nodoString *sig;
 };
-
-struct colaDeNumeros{
-    char valor[100];
-    struct colaDeNumeros *next;
-};
-
-struct nodoPilaOperador{
-    char val[2];
-    struct nodoPilaOperador *sig;
-};
-
 typedef struct cadenaNum{
-    char val[100];
+    char val[30];
     int tipoNum; //0 dec, 1 oct, 2 hex
 }cadenaNum;
 
@@ -47,17 +36,24 @@ int estadosAutomata[7][6]={
     {7,5,5,5,5,7},
     {7,7,1,1,7,7},
 };
+//Estructuras para validación y cola de expresión inicial
+struct nodoNum *headPilaNum = NULL;
 
-struct nodoPilaNum *headPilaNum;
-struct nodoPilaNumChar *headPilaNumChar;
-struct nodoPilaOperador *headPilaOperador;
+struct nodoString *headColaExp = NULL;
+struct nodoString *tailColaExp = NULL;
 
-struct colaDeNumeros *headColaNum = NULL;
-struct colaDeNumeros *tailColaNum = NULL;
+//Estructuras para conversión de expresión
+struct nodoString *headColaPolaca = NULL;
+struct nodoString *tailColaPolaca = NULL;
+
+struct nodoString *headColaNum = NULL;
+struct nodoString *tailColaNum = NULL;
+
+struct nodoString *headPilaOper = NULL;
 
 int potenciar(int, int);
-void pushPilaNumChar(char[]);
-char * popPilaNumChar();
+void pushPilaOper(char[]);
+char * popPilaOper();
 int cadenaDecADec(char*);
 int cadenaOctADec(char*);
 int cadenaHexADec(char*);
@@ -66,38 +62,33 @@ int simboloCoincide(char, char[]);
 int validarCadena(char[]);
 int validarMultipleCadena(char[]);
 void separarPorTerminos(char[]);
-void pushCola(char*);
-void recorrerCola();
-//struct colaDeNumeros **nodo,
+void pushColaExp(char*);
+char * popColaExp();
+void pushColaPolaca(char*);
+char * popColaPolaca();
+void pushColaNum(char*);
+char * popColaNum();
+void vaciarColaNum();
+void vaciarPilaOper();
+void vaciarColaPolaca();
+void infijaAPolaca();
 
+int mult();
+int sum();
+int rest();
+
+int darValor();
 
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
 int main(){
-    cadenaNum cadena;
-//    printf("Expresion a analizar:\n");
-    scanf("%s", cadena.val);
-//    printf("\nCadena: %s\n", cadena.val);
-//    cadena.tipoNum = validarCadena(cadena.val);
 
-
-//  Expresiones de prueba todo decimal
-//  Exp1. 123+41-4*3542+41436+10
-//  Exp2. 123+4124+3151+346
-
-//  Expresiones de prueba con todo tipo de bases
-//  0173+0x29-4+06726+0xA1DC+10 (misma que EXP.1 pero mezclado con otras bases)
-//  0173+0x29-4+06726+0xa1dc+10
-    printf("*********CADENA SEPARADA POR TERMINOS********\n");
-    separarPorTerminos(cadena.val);
-
-    recorrerCola();
-    
-//    getchar();
-//    getchar();
-//    system("cls");
-//    int lel = cadenaANum(cadena);
-//    printf("Resultado: %d\n", lel);
+    char cadena[]="";
+    scanf("%s", cadena);
+    separarPorTerminos(cadena);
+    infijaAPolaca();
+    printf("\nResultado = %d",darValor());
+ 
 }
 //-----------------------------------------
 
@@ -110,7 +101,7 @@ int potenciar(int base, int exp){
 }
 
 void pushPilaNum(int val){
-    struct nodoPilaNum *ptr = (struct nodoPilaNum *)malloc(sizeof(struct nodoPilaNum));
+    struct nodoNum *ptr = (struct nodoNum *)malloc(sizeof(struct nodoNum));
 
     if (headPilaNum == NULL)
     {
@@ -129,7 +120,7 @@ void pushPilaNum(int val){
 
 int popPilaNum(){
     int item;
-    struct nodoPilaNum *ptr;
+    struct nodoNum *ptr;
     if (headPilaNum != NULL)
     {
         item = headPilaNum->val;
@@ -141,31 +132,31 @@ int popPilaNum(){
     return 0;
 }
 
-void pushPilaNumChar(char val[]){
-    struct nodoPilaNumChar *ptr = (struct nodoPilaNumChar *)malloc(sizeof(struct nodoPilaNumChar));
+void pushPilaOper(char val[]){
+    struct nodoString *ptr = (struct nodoString *)malloc(sizeof(struct nodoString));
 
-    if (headPilaNumChar == NULL)
+    if (headPilaOper == NULL)
     {
         strcpy(ptr->val, val);
         ptr->sig = NULL;
-        headPilaNumChar = ptr;
+        headPilaOper = ptr;
     }
     else
     {
         strcpy(ptr->val, val);
-        ptr->sig = headPilaNumChar;
-        headPilaNumChar = ptr;
+        ptr->sig = headPilaOper;
+        headPilaOper = ptr;
     }
 }
 
-char *popPilaNumChar(){
+char *popPilaOper(){
     static char item[]="";
-    struct nodoPilaNumChar *ptr;
-    if (headPilaNumChar != NULL)
+    struct nodoString *ptr;
+    if (headPilaOper != NULL)
     {
-        strcpy(item, headPilaNumChar->val);
-        ptr = headPilaNumChar;
-        headPilaNumChar = headPilaNumChar->sig;
+        strcpy(item, headPilaOper->val);
+        ptr = headPilaOper;
+        headPilaOper = headPilaOper->sig;
         free(ptr);
         return item;
     }
@@ -296,43 +287,101 @@ int validarCadena(char cadena[]){
     return tipo;
 }
 
-int vacia(){
-    if (headColaNum == NULL)
-        return 1;
-    else
-        return 0;
+void pushColaExp(char *x){
+    struct nodoString *nuevo;
+    nuevo=malloc(sizeof(struct nodoString));
+    strcpy(nuevo->val, x);
+    nuevo->sig = NULL;
+    if (headColaExp == NULL){
+        headColaExp = nuevo;
+        tailColaExp = nuevo;
+    }
+    else{
+        tailColaExp->sig = nuevo;
+        tailColaExp = nuevo;
+    }
 }
 
-void pushCola(char *x){
-    struct colaDeNumeros *nuevo;
-    nuevo=malloc(sizeof(struct colaDeNumeros));
-    strcpy(nuevo->valor, x);
-    nuevo->next = NULL;
-    if (vacia()){
+char *popColaExp(){
+    static char item[]="";
+    if (headColaExp != NULL)
+    {
+        strcpy(item,headColaExp->val);
+        headColaExp = headColaExp->sig;
+        return item;
+    }
+    return 0;
+}
+
+void pushColaNum(char *x){
+    struct nodoString *nuevo;
+    nuevo=malloc(sizeof(struct nodoString));
+    strcpy(nuevo->val, x);
+    nuevo->sig = NULL;
+    if (headColaNum == NULL){
         headColaNum = nuevo;
         tailColaNum = nuevo;
     }
     else{
-        tailColaNum->next = nuevo;
+        tailColaNum->sig = nuevo;
         tailColaNum = nuevo;
     }
+    
 }
 
-void recorrerCola(){
-    struct colaDeNumeros *reco = headColaNum;
+char *popColaNum(){
+    static char item[]="";
+    if (headColaNum != NULL)
+    {
+        strcpy(item,headColaNum->val);
+        headColaNum = headColaNum->sig;
+        return item;
+    }
+    return "0";
+}
+
+void pushColaPolaca(char *x){
+    struct nodoString *nuevo;
+    nuevo=malloc(sizeof(struct nodoString));
+    strcpy(nuevo->val, x);
+    nuevo->sig = NULL;
+    if (headColaPolaca == NULL){
+        headColaPolaca = nuevo;
+        tailColaPolaca = nuevo;
+    }
+    else{
+        tailColaPolaca->sig = nuevo;
+        tailColaPolaca = nuevo;
+    }
+    printf("Recibido %s\n", x);
+}
+
+char *popColaPolaca(){
+    static char item[]="";
+    if (headColaPolaca != NULL)
+    {
+        strcpy(item,headColaPolaca->val);
+        headColaPolaca = headColaPolaca->sig;
+        return item;
+    }
+    return 0;
+}
+
+/*void recorrerCola(){
+    struct nodoString *reco = headColaExp;
     printf("Listado de todos los elementos de la cola.\n");
     while (reco != NULL)
     {
-        printf("%s - ", reco->valor);
-        reco = reco->next;
+        printf("%s - ", reco->val);
+        reco = reco->sig;
     }
     printf("\n");
-}
+}*/
 
 // 1. Convertir todos los numeros de X a decimal, separando por terminos (+, -, *)
 void separarPorTerminos(char cadena[]){
     int i = 0;
-    char acumulador[100] = "";
+    char acumulador[30] = "";
 
     long sizeChar = strlen(cadena);
     printf("Size of the expression: %ld\n", sizeChar);
@@ -344,7 +393,7 @@ void separarPorTerminos(char cadena[]){
             strncat(acumulador, &cadena[i], 1);
 
         } else{
-            char stringResult[100];
+            char stringResult[30];
 
 //            printf("Actualmente analizando en else: %c\n", cadena[i]);
 
@@ -362,14 +411,97 @@ void separarPorTerminos(char cadena[]){
             printf("** Resultado que se va a poner en cola en decimal: %s\n", stringResult);
 
 //            agregar a la cola lo acumulado de la expresion strings de decimales
-            pushCola(stringResult);
+            pushColaExp(stringResult);
 
-//            Vaciar acumulador
+//            Vaciar acumulador y agregar operador a la cola
             strcpy(acumulador, "");
+            if(cadena[i] == '+' || cadena[i] == '-' || cadena[i] == '*'){
+                strncat(acumulador, &cadena[i], 1);
+                pushColaExp(acumulador);
+                strcpy(acumulador, "");
+            }  
         }
         i++;
     }
 }
+
+void vaciarColaNum(){
+    while(headColaNum!=NULL){
+        pushColaPolaca(popColaNum());
+        printf("Ok num\n");
+    }
+}
+
+void vaciarPilaOper(){
+
+    while(headPilaOper!=NULL){
+        pushColaPolaca(popPilaOper());
+    }
+}
+void vaciarColaPolaca(){
+    while(headColaPolaca!=NULL){
+        printf("%s", popColaPolaca());
+    }
+}
+
+void infijaAPolaca(){
+    int i = 0;
+    printf("\nTest1\n");
+    while(headColaExp!=NULL){
+        if(i%2){
+            printf("\nOperador\n");
+            pushPilaOper(popColaExp());
+
+            if(!strcmp(headPilaOper->val,"+") || !strcmp(headPilaOper->val,"-")){
+                vaciarPilaOper();
+                vaciarColaNum();
+            }
+        }else{
+            printf("\nNumero\n");
+            pushColaNum(popColaExp());
+        }
+        i++;
+    }
+    vaciarPilaOper();
+    vaciarColaNum();
+}
+
+int mult(){
+    int a = darValor();
+    int b = darValor();
+
+    return a*b;
+}
+
+int sum(){
+    int a = darValor();
+    int b = darValor();
+
+    return a+b;
+}
+
+int rest(){
+    int a = darValor();
+    int b = darValor();
+
+    return a-b;
+}
+
+int darValor(){
+    char * dato = "";
+    dato = popColaPolaca();
+    if(isdigit(dato[0]) || isdigit(dato[1]))
+        return cadenaDecADec(dato);
+    else{
+        switch(dato[0]){
+            case '+': return sum(); break;
+            case '-': return rest(); break;
+            case '*': return mult(); break;
+        }
+    }
+
+}
+
 
 // Crear 2 colas para numeros y para notacion polaca y Pila para operadores
 // Sacar elementos de la primera cola
