@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/home/andry/utn/ideasTPSintaxis/cmake-build-debug",
-		"source" : "/home/andry/utn/ideasTPSintaxis"
+		"build" : "/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug",
+		"source" : "/home/andry/utn/pruea/ideasTPSintaxis"
 	},
 	"version" : 
 	{

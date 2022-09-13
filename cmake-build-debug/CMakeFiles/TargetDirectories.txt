@@ -1,3 +1,3 @@
-/home/andry/utn/ideasTPSintaxis/cmake-build-debug/CMakeFiles/ideasTPSintaxis.dir
-/home/andry/utn/ideasTPSintaxis/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/andry/utn/ideasTPSintaxis/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug/CMakeFiles/ideasTPSintaxis.dir
+/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug/CMakeFiles/rebuild_cache.dir

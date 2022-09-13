@@ -39,7 +39,7 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = /home/andry/utn/ideasTPSintaxis/cmake-build-debug/
+cmake_ninja_workdir = /home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug/
 # =============================================================================
 # Object build statements for EXECUTABLE target ideasTPSintaxis
 
@@ -49,7 +49,7 @@ cmake_ninja_workdir = /home/andry/utn/ideasTPSintaxis/cmake-build-debug/
 
 build cmake_object_order_depends_target_ideasTPSintaxis: phony || CMakeFiles/ideasTPSintaxis.dir
 
-build CMakeFiles/ideasTPSintaxis.dir/pilas.c.o: C_COMPILER__ideasTPSintaxis_Debug /home/andry/utn/ideasTPSintaxis/pilas.c || cmake_object_order_depends_target_ideasTPSintaxis
+build CMakeFiles/ideasTPSintaxis.dir/pilas.c.o: C_COMPILER__ideasTPSintaxis_Debug /home/andry/utn/pruea/ideasTPSintaxis/pilas.c || cmake_object_order_depends_target_ideasTPSintaxis
   DEP_FILE = CMakeFiles/ideasTPSintaxis.dir/pilas.c.o.d
   FLAGS = -g -std=gnu11
   OBJECT_DIR = CMakeFiles/ideasTPSintaxis.dir
@@ -79,7 +79,7 @@ build ideasTPSintaxis: C_EXECUTABLE_LINKER__ideasTPSintaxis_Debug CMakeFiles/ide
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/andry/utn/ideasTPSintaxis/cmake-build-debug && /home/andry/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/221.5080.224/bin/cmake/linux/bin/ccmake -S/home/andry/utn/ideasTPSintaxis -B/home/andry/utn/ideasTPSintaxis/cmake-build-debug
+  COMMAND = cd /home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug && /home/andry/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/221.5080.224/bin/cmake/linux/bin/ccmake -S/home/andry/utn/pruea/ideasTPSintaxis -B/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug
   DESC = Running CMake cache editor...
   pool = console
   restat = 1
@@ -91,7 +91,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/andry/utn/ideasTPSintaxis/cmake-build-debug && /home/andry/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/221.5080.224/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/andry/utn/ideasTPSintaxis -B/home/andry/utn/ideasTPSintaxis/cmake-build-debug
+  COMMAND = cd /home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug && /home/andry/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/221.5080.224/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/andry/utn/pruea/ideasTPSintaxis -B/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -107,7 +107,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 
 #############################################
-# Folder: /home/andry/utn/ideasTPSintaxis/cmake-build-debug
+# Folder: /home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug
 
 build all: phony ideasTPSintaxis
 

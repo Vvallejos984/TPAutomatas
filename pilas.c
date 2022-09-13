@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 
 struct nodoNum{
     int val;
@@ -72,6 +73,7 @@ void vaciarColaNum();
 void vaciarPilaOper();
 void vaciarColaPolaca();
 void infijaAPolaca();
+const char* leerArchivo();
 
 int mult();
 int sum();
@@ -82,15 +84,84 @@ int darValor();
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
 int main(){
+//    123+41-4*3542+41436+10 -> 27442
+//    0173+0x29-4*06726+0xA1DC+10 -> 27442 (correcto)
+//    Resultado que tira = -55450 (mal) seguramente es por el tema de la procedencia de opereadores que dijiste
 
-    char cadena[]="";
-    scanf("%s", cadena);
+    char opcion;
+    char cadena[100] = "";
+
+    printf("Quiero ingresar la expresion mediante: \n");
+    printf("1. Archivo de texto: \n");
+    printf("2. Consola: \n");
+
+    scanf(" %c", &opcion);
+
+    switch(opcion) {
+        case '1':
+            printf("Elegiste ingresar la expresion por archivo de texto.\n");
+            const char * res = leerArchivo();
+            strcpy(cadena, res);
+            break;
+        case '2':
+            printf("Elegiste ingresar la expresion por consola: \n");
+            scanf("%s", cadena);
+            break;
+        default:
+            printf("NO SE ELIGIO METODO DE INGRESO");
+    }
+
     separarPorTerminos(cadena);
     infijaAPolaca();
     printf("\nResultado = %d",darValor());
- 
+
+//   TODO
+//1. Funciones que repiten logica
+//2. Que pueda leer strings de archivos externos (semi done)
+//3. Contar cuantos numeros de cada tipo hay separados por &
+
 }
 //-----------------------------------------
+const char* leerArchivo(){
+    FILE* archivo;
+    char cwd[100];
+    getcwd(cwd, sizeof(cwd));
+
+    char a;
+    static char expresiones[] = "";
+    char finalDir[] = "";
+
+    int lastBarra = 0;
+    int length = strlen(cwd);
+
+    for (int i = 0; i < length-1; i++) {
+        if(cwd[i] == '/' && cwd[i]){
+            lastBarra = i;
+        }
+    }
+
+    for (int i = 0; i < lastBarra; ++i) {
+        strncat(finalDir, &cwd[i], 1);
+    }
+
+    archivo = fopen(strcat(finalDir, "/expresiones.txt"), "r");
+
+    if(archivo == NULL){
+        printf("[ERROR] EL ARCHIVO NO SE PUEDE ABRIR.\n");
+        return 0;
+    }
+
+    do{
+        a = fgetc(archivo);
+        if(a != EOF){
+            strncat(expresiones, &a, 1);
+        }
+    } while (a != EOF);
+
+    fclose(archivo);
+
+    return expresiones;
+}
 
 int potenciar(int base, int exp){
     int res=1;
@@ -103,14 +174,12 @@ int potenciar(int base, int exp){
 void pushPilaNum(int val){
     struct nodoNum *ptr = (struct nodoNum *)malloc(sizeof(struct nodoNum));
 
-    if (headPilaNum == NULL)
-    {
+    if (headPilaNum == NULL){
         ptr->val = val;
         ptr->sig = NULL;
         headPilaNum = ptr;
     }
-    else
-    {
+    else{
         ptr->val = val;
         ptr->sig = headPilaNum;
         headPilaNum = ptr;
@@ -121,8 +190,7 @@ void pushPilaNum(int val){
 int popPilaNum(){
     int item;
     struct nodoNum *ptr;
-    if (headPilaNum != NULL)
-    {
+    if (headPilaNum != NULL){
         item = headPilaNum->val;
         ptr = headPilaNum;
         headPilaNum = headPilaNum->sig;
@@ -150,7 +218,7 @@ void pushPilaOper(char val[]){
 }
 
 char *popPilaOper(){
-    static char item[]="";
+    static char item[100]="";
     struct nodoString *ptr;
     if (headPilaOper != NULL)
     {

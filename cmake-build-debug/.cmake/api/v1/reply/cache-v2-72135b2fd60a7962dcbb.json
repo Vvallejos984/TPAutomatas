@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/andry/utn/ideasTPSintaxis/cmake-build-debug"
+			"value" : "/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -463,7 +463,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/andry/utn/ideasTPSintaxis"
+			"value" : "/home/andry/utn/pruea/ideasTPSintaxis"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -995,7 +995,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/andry/utn/ideasTPSintaxis/cmake-build-debug"
+			"value" : "/home/andry/utn/pruea/ideasTPSintaxis/cmake-build-debug"
 		},
 		{
 			"name" : "ideasTPSintaxis_IS_TOP_LEVEL",
@@ -1019,7 +1019,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/andry/utn/ideasTPSintaxis"
+			"value" : "/home/andry/utn/pruea/ideasTPSintaxis"
 		}
 	],
 	"kind" : "cache",
