@@ -21,6 +21,7 @@
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/ideasTPSintaxis.dir/pilas.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/ideasTPSintaxis.dir/pilas.c.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/ideasTPSintaxis" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/ideasTPSintaxis" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/expresiones.txt" beforeDir="false" afterPath="$PROJECT_DIR$/expresiones.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pilas.c" beforeDir="false" afterPath="$PROJECT_DIR$/pilas.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -94,7 +95,7 @@
       <workItem from="1662949976302" duration="821000" />
       <workItem from="1663021113149" duration="9939000" />
       <workItem from="1663200453413" duration="4663000" />
-      <workItem from="1663351718498" duration="1000" />
+      <workItem from="1663351718498" duration="4300000" />
     </task>
     <servers />
   </component>

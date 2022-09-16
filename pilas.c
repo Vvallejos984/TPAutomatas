@@ -19,6 +19,11 @@ typedef struct cadenaNum{
     int tipoNum; //0 dec, 1 oct, 2 hex
 }cadenaNum;
 
+typedef struct colaNumeros{
+    struct cadenaNum val;
+    struct colaNumeros *sig;
+}colaNumeros;
+
 char terminalesDecOctHex[6][17]={
     "-",
     "0",
@@ -37,6 +42,9 @@ int estadosAutomata[7][6]={
     {7,5,5,5,5,7},
     {7,7,1,1,7,7},
 };
+
+struct colaNumeros *headColaNumerosVarios;
+struct colaNumeros *tailColaNumerosVarios;
 //Estructuras para validación y cola de expresión inicial
 struct nodoNum *headPilaNum = NULL;
 
@@ -151,32 +159,52 @@ int main() {
 //-----------------------------------------
 
 void validarCadenaNumeros(char * cadena){
-    printf("Estamos al principio de 3\n");
+    printf("Cadena leida del archivo de texto: %s\n", cadena);
     int i = 0;
+    int j = 0;
+
+    int decimales = 0;
+    int octales = 0;
+    int hexadecimales = 0;
+
     char acumulador[30] = "";
-
+    int tipos[100];
     long sizeChar = strlen(cadena);
-    printf("Size of the expression: %ld\n", sizeChar);
     while(sizeChar + 1 > i){
-//        Cuando detecta \0 no analiza lo que paso (se soluciona con sizeof xd)
         if(cadena[i] != '&' && cadena[i] != '\0' && cadena[i] != ' ') {
-
-//            printf("Actualmente analizando en if: %c\n", cadena[i]);
             strncat(acumulador, &cadena[i], 1);
 
         } else {
-//            printf("Actualmente analizando en else: %c\n", cadena[i]);
+            tipos[j] = validarCadena(acumulador);
             pushColaExp(acumulador);
-//            cadenaNum cadenaNum1 = {
-//                    .tipoNum=validarCadena(acumulador)
-//            };
-//            printf("Cadena '%s' se sumo a la cola\n", acumulador);
             strcpy(acumulador, "");
+            j++;
         }
         i++;
     }
-    popColaExp();
-    printf("\nEstamos al final de 3\n");
+    i = 0;
+//    printf("Listado de todos los elementos de la cola.\n");
+    struct nodoString *nuevo = headColaExp;
+    while (nuevo != NULL){
+        char * valorAlmacenado = nuevo->val;
+        switch (tipos[i]) {
+            case 1: decimales++;
+                break;
+            case 2: octales++;
+                break;
+            case 3: hexadecimales++;
+                break;
+            default:
+                break;
+        }
+//        printf("Valor en la cola: %s y su tipo: %i\n", valorAlmacenado, tipos[i]);
+        nuevo = nuevo->sig;
+        i++;
+    }
+    printf("La expresion ingresada tiene: \n");
+    printf("%d decimal/es\n", decimales);
+    printf("%d octal/es\n", octales);
+    printf("%d hexadecimal/es\n", hexadecimales);
 }
 
 
