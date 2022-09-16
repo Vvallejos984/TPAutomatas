@@ -74,6 +74,7 @@ void vaciarPilaOper();
 void vaciarColaPolaca();
 void infijaAPolaca();
 const char* leerArchivo();
+void validarCadenaNumeros(char *);
 
 int mult();
 int sum();
@@ -83,45 +84,102 @@ int darValor();
 
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
-int main(){
+int main() {
 //    123+41-4*3542+41436+10 -> 27442
 //    0173+0x29-4*06726+0xA1DC+10 -> 27442 (correcto)
 //    Resultado que tira = -55450 (mal) seguramente es por el tema de la procedencia de opereadores que dijiste
 
-    char opcion;
+    char opcion1;
+    char opcion2;
     char cadena[100] = "";
 
     printf("Quiero ingresar la expresion mediante: \n");
     printf("1. Archivo de texto: \n");
     printf("2. Consola: \n");
+    printf("3. No quiero resolver una expresion solo quiero contar numeros: \n");
 
-    scanf(" %c", &opcion);
+    scanf(" %c", &opcion1);
 
-    switch(opcion) {
+    switch (opcion1) {
         case '1':
             printf("Elegiste ingresar la expresion por archivo de texto.\n");
-            const char * res = leerArchivo();
+            const char *res = leerArchivo();
             strcpy(cadena, res);
             break;
         case '2':
             printf("Elegiste ingresar la expresion por consola: \n");
             scanf("%s", cadena);
             break;
+        case '3':
+            printf("Quiero contar numeros desde: \n");
+            printf("1. Archivo de texto: \n");
+            printf("2. Consola: \n");
+            scanf(" %c", &opcion2);
+            switch (opcion2) {
+                case '1':
+                    printf("Elegiste ingresar numeros por archivo de texto.\n");
+                    const char *resp = leerArchivo();
+                    strcpy(cadena, resp);
+                    break;
+                case '2':
+                    printf("Elegiste ingresar numeros por consola: \n");
+                    scanf("%s", cadena);
+                    break;
+                default:
+                    printf("No se elegio ninguno\n");
+                    break;
+            }
+            break;
         default:
             printf("NO SE ELIGIO METODO DE INGRESO");
+            break;
     }
 
-    separarPorTerminos(cadena);
-    infijaAPolaca();
-    printf("\nResultado = %d",darValor());
+    if(opcion1 == '3'){
+        validarCadenaNumeros(cadena);
+    }else{
+        separarPorTerminos(cadena);
+        infijaAPolaca();
+        printf("\nResultado = %d",darValor());
+    }
 
 //   TODO
 //1. Funciones que repiten logica
 //2. Que pueda leer strings de archivos externos (semi done)
 //3. Contar cuantos numeros de cada tipo hay separados por &
-
 }
 //-----------------------------------------
+
+void validarCadenaNumeros(char * cadena){
+    printf("Estamos al principio de 3\n");
+    int i = 0;
+    char acumulador[30] = "";
+
+    long sizeChar = strlen(cadena);
+    printf("Size of the expression: %ld\n", sizeChar);
+    while(sizeChar + 1 > i){
+//        Cuando detecta \0 no analiza lo que paso (se soluciona con sizeof xd)
+        if(cadena[i] != '&' && cadena[i] != '\0' && cadena[i] != ' ') {
+
+//            printf("Actualmente analizando en if: %c\n", cadena[i]);
+            strncat(acumulador, &cadena[i], 1);
+
+        } else {
+//            printf("Actualmente analizando en else: %c\n", cadena[i]);
+            pushColaExp(acumulador);
+//            cadenaNum cadenaNum1 = {
+//                    .tipoNum=validarCadena(acumulador)
+//            };
+//            printf("Cadena '%s' se sumo a la cola\n", acumulador);
+            strcpy(acumulador, "");
+        }
+        i++;
+    }
+    popColaExp();
+    printf("\nEstamos al final de 3\n");
+}
+
+
 const char* leerArchivo(){
     FILE* archivo;
     char cwd[100];
@@ -372,8 +430,7 @@ void pushColaExp(char *x){
 
 char *popColaExp(){
     static char item[]="";
-    if (headColaExp != NULL)
-    {
+    if (headColaExp != NULL){
         strcpy(item,headColaExp->val);
         headColaExp = headColaExp->sig;
         return item;
@@ -435,16 +492,16 @@ char *popColaPolaca(){
     return 0;
 }
 
-/*void recorrerCola(){
-    struct nodoString *reco = headColaExp;
-    printf("Listado de todos los elementos de la cola.\n");
-    while (reco != NULL)
-    {
-        printf("%s - ", reco->val);
-        reco = reco->sig;
-    }
-    printf("\n");
-}*/
+//void recorrerCola(){
+//    struct nodoString *reco = headColaExp;
+//    printf("Listado de todos los elementos de la cola.\n");
+//    while (reco != NULL)
+//    {
+//        printf("%s - ", reco->val);
+//        reco = reco->sig;
+//    }
+//    printf("\n");
+//}
 
 // 1. Convertir todos los numeros de X a decimal, separando por terminos (+, -, *)
 void separarPorTerminos(char cadena[]){
