@@ -186,7 +186,6 @@ void validarCadenaNumeros(char * cadena){
 //    printf("Listado de todos los elementos de la cola.\n");
     struct nodoString *nuevo = headColaExp;
     while (nuevo != NULL){
-        char * valorAlmacenado = nuevo->val;
         switch (tipos[i]) {
             case 1: decimales++;
                 break;
