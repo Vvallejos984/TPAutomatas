@@ -98,22 +98,23 @@ int main() {
 //    0173+0x29-4*06726+0xA1DC+10 -> 27442 (correcto)
 //    Resultado que tira = -55450 (mal) seguramente es por el tema de la procedencia de opereadores que dijiste
 
+//    12&0x12p4C&0x43n5A&1&47&02312
     char opcion1;
     char opcion2;
     char cadena[100] = "";
 
     system("cls");
     printf("Quiero ingresar la expresion mediante: \n");
-    printf("\n1. Archivo de texto: \n");
-    printf("2. Consola: \n");
-    printf("3. No quiero resolver una expresion solo quiero contar numeros: \n");
+    printf("1. Archivo de texto.\n");
+    printf("2. Consola.\n");
+    printf("3. No quiero resolver una expresion solo quiero contar numeros.\n");
 
     scanf(" %c", &opcion1);
 
     switch (opcion1) {
         case '1':
             system("cls");
-            printf("Elegiste ingresar la expresion por archivo de texto.\n");
+//            printf("Elegiste ingresar la expresion por archivo de texto.\n");
             const char *res = leerArchivo();
             strcpy(cadena, res);
             break;
@@ -125,13 +126,13 @@ int main() {
         case '3':
             system("cls");
             printf("Quiero contar numeros desde: \n");
-            printf("1. Archivo de texto: \n");
-            printf("2. Consola: \n");
+            printf("1. Archivo de texto.\n");
+            printf("2. Consola.\n");
             scanf(" %c", &opcion2);
             switch (opcion2) {
                 case '1':
                     system("cls");
-                    printf("Elegiste ingresar numeros por archivo de texto.\n");
+//                    printf("Elegiste ingresar numeros por archivo de texto.\n");
                     const char *resp = leerArchivo();
                     strcpy(cadena, resp);
                     break;
@@ -179,6 +180,10 @@ void validarCadenaNumeros(char * cadena){
 
         } else {
             tipos[j] = validarCadena(acumulador);
+            if(tipos[j] == 0){
+                printf("Cadena invalida encontrada, se detuvo el conteo de numeros.\n");
+                exit(-1);
+            }
             pushPilaExp(acumulador);
             strcpy(acumulador, "");
             j++;
@@ -257,6 +262,7 @@ const char* leerArchivo(){
     } while (a != EOF);
 
     fclose(archivo);
+    printf("Expresion recuperada del archivo de texto: %s\n", expresiones);
 
     return expresiones;
 }
@@ -391,7 +397,8 @@ int cadenaHexADec(char cadena[]){
 
 int cadenaANum(cadenaNum cadena){
     switch(cadena.tipoNum){
-        case 0: printf("Cadena invalida\n"); return -0;
+        case 0: printf("Cadena invalida encontrada, se detuvo el proceso\n");
+            exit(-1);
         case 1: return cadenaDecADec(cadena.val);
         case 2: return cadenaOctADec(cadena.val);
         case 3: return cadenaHexADec(cadena.val);
