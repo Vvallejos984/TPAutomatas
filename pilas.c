@@ -100,8 +100,8 @@ int main() {
     char cadena[100] = "";
     bool esExpresion = true;
 
-    system("cls");
-    printf("Quiero ingresar la expresion mediante: \n");
+//    system("cls");
+    printf("\nQuiero ingresar la expresion mediante: \n");
     printf("1. Archivo de texto.\n");
     printf("2. Consola.\n");
 
@@ -109,12 +109,12 @@ int main() {
 
     switch (opcion) {
         case '1':
-            system("cls");
+//            system("cls");
             const char *res = leerArchivo();
             strcpy(cadena, res);
             break;
         case '2':
-            system("cls");
+//            system("cls");
             printf("Elegiste ingresar la expresion por consola: \n");
             scanf("%s", cadena);
             break;
@@ -125,15 +125,15 @@ int main() {
 
     esExpresion = validarEsExpresion(cadena);
 
-    system("cls");
+//    system("cls");
     if(!esExpresion){
-        printf("Procederemos a contar la cantidad de numeros decimales, octales y hexadecimales que hay en la expresion: \n");
+        printf("\nProcederemos a contar la cantidad de numeros decimales, octales y hexadecimales que hay en la expresion: \n");
         validarCadenaNumeros(cadena);
     }else{
-        printf("Procederemos a operar la expresion: \n");
+        printf("\nProcederemos a operar la expresion:");
         separarPorTerminos(cadena);
         infijaAPostfix();
-        printf("\nResultado:\n%s = %d\n", cadena, darValor());
+        printf("\n\nResultado:\n%s = %d\n", cadena, darValor());
     }
 }
 //-----------------------------------------
@@ -151,7 +151,7 @@ bool validarEsExpresion(char * cadena){
 }
 
 void validarCadenaNumeros(char * cadena){
-    system("cls");
+//    system("cls");
     int i = 0;
     int j = 0;
 
@@ -196,7 +196,7 @@ void validarCadenaNumeros(char * cadena){
     char pluralDec[] = "es";
     char pluralOct[] = "es";
     char pluralHex[] = "es";
-    char pluralInv[] = "es";
+    char pluralInv[] = "s";
 
     if(!(decimales-1))
         strcpy(pluralDec,"");
@@ -207,7 +207,7 @@ void validarCadenaNumeros(char * cadena){
     if(!(invalidos-1))
         strcpy(pluralInv,"");
 
-    printf("\nLa expresion ingresada tiene: \n\n");
+    printf("\n\nLa expresion ingresada tiene: \n");
     printf("%d decimal%s\n", decimales, pluralDec);
     printf("%d octal%s\n", octales, pluralOct);
     printf("%d hexadecimal%s\n", hexadecimales, pluralHex);
@@ -294,14 +294,12 @@ int popPilaNum(){
 void pushPilaOper(char val[]){
     struct nodoString *ptr = (struct nodoString *)malloc(sizeof(struct nodoString));
 
-    if (headPilaOper == NULL)
-    {
+    if (headPilaOper == NULL){
         strcpy(ptr->val, val);
         ptr->sig = NULL;
         headPilaOper = ptr;
     }
-    else
-    {
+    else{
         strcpy(ptr->val, val);
         ptr->sig = headPilaOper;
         headPilaOper = ptr;
@@ -409,11 +407,11 @@ int validarCadena(char cadena[]){
     int caracter = 0;
     while(estado!=7){
         if(cadena[caracter]=='\0' && caracter!=0){
-            printf("Cadena '%s' valida - ", cadena);
+            printf("\nCadena '%s' valida - ", cadena);
             switch(estado){
-                case 1: tipo=1; printf("Es decimal\n"); break;
-                case 3: tipo=2; printf("Es octal\n"); break;
-                case 5: tipo=3; printf("Es hexadecimal\n"); break;
+                case 1: tipo=1; printf("Es decimal"); break;
+                case 3: tipo=2; printf("Es octal"); break;
+                case 5: tipo=3; printf("Es hexadecimal"); break;
                 default: tipo = 0; 
             }
             break;
@@ -440,7 +438,7 @@ int validarCadena(char cadena[]){
         
     }
     if(estado==7){
-        printf("Cadena '%s' invalida\n",cadena);
+        printf("\nCadena '%s' invalida",cadena);
     }
         
     return tipo;
@@ -555,6 +553,8 @@ void separarPorTerminos(char cadena[]){
             int decimalResult = cadenaANum(cadenaNum1);
 //            Convierte de int a string
             sprintf(stringResult, "%d", decimalResult);
+            printf(" --> Equivale a '%d' en decimal", decimalResult);
+//            printf("        ↳ Equivale a %d en decimal\n", decimalResult);
 //            agregar a la cola lo acumulado de la expresion strings de decimales
             pushPilaExp(stringResult);
 //            Vaciar acumulador y agregar operador a la cola
