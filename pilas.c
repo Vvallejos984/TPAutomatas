@@ -79,6 +79,7 @@ void vaciarColaNum();
 void vaciarPilaOper();
 void vaciarPilaPostfix();
 void infijaAPostfix();
+bool validarEsExpresion(char*);
 
 const char* leerArchivo();
 
@@ -94,27 +95,21 @@ int darValor();
 //gcc pilas.c -o pilas && pilas.exe
 //-----------------------------------------
 int main() {
-//    123+41-4*3542+41436+10 -> 27442
-//    0173+0x29-4*06726+0xA1DC+10 -> 27442 (correcto)
-//    Resultado que tira = -55450 (mal) seguramente es por el tema de la procedencia de opereadores que dijiste
 
-//    12&0x12p4C&0x43n5A&1&47&02312
-    char opcion1;
-    char opcion2;
+    char opcion;
     char cadena[100] = "";
+    bool esExpresion = true;
 
     system("cls");
     printf("Quiero ingresar la expresion mediante: \n");
     printf("1. Archivo de texto.\n");
     printf("2. Consola.\n");
-    printf("3. No quiero resolver una expresion solo quiero contar numeros.\n");
 
-    scanf(" %c", &opcion1);
+    scanf(" %c", &opcion);
 
-    switch (opcion1) {
+    switch (opcion) {
         case '1':
             system("cls");
-//            printf("Elegiste ingresar la expresion por archivo de texto.\n");
             const char *res = leerArchivo();
             strcpy(cadena, res);
             break;
@@ -123,53 +118,47 @@ int main() {
             printf("Elegiste ingresar la expresion por consola: \n");
             scanf("%s", cadena);
             break;
-        case '3':
-            system("cls");
-            printf("Quiero contar numeros desde: \n");
-            printf("1. Archivo de texto.\n");
-            printf("2. Consola.\n");
-            scanf(" %c", &opcion2);
-            switch (opcion2) {
-                case '1':
-                    system("cls");
-//                    printf("Elegiste ingresar numeros por archivo de texto.\n");
-                    const char *resp = leerArchivo();
-                    strcpy(cadena, resp);
-                    break;
-                case '2':
-                    system("cls");
-                    printf("Elegiste ingresar numeros por consola: \n");
-                    scanf("%s", cadena);
-                    break;
-                default:
-                    printf("No se elegio ninguno\n");
-                    break;
-            }
-            break;
         default:
             printf("NO SE ELIGIO METODO DE INGRESO");
             break;
     }
+
+    esExpresion = validarEsExpresion(cadena);
+
     system("cls");
-    if(opcion1 == '3'){
+    if(!esExpresion){
+        printf("Procederemos a contar la cantidad de numeros decimales, octales y hexadecimales que hay en la expresion: \n");
         validarCadenaNumeros(cadena);
     }else{
+        printf("Procederemos a operar la expresion: \n");
         separarPorTerminos(cadena);
         infijaAPostfix();
-        printf("\nResultado:\n\n%s = %d\n", cadena, darValor());
+        printf("\nResultado:\n%s = %d\n", cadena, darValor());
     }
 }
 //-----------------------------------------
 
+bool validarEsExpresion(char * cadena){
+    int i = 0;
+    long sizeChar = strlen(cadena);
+    while(sizeChar + 1 > i){
+        if(cadena[i] == '&') {
+            return false;
+        }
+        i++;
+    }
+    return true;
+}
+
 void validarCadenaNumeros(char * cadena){
     system("cls");
-    printf("Cadena recibida: %s\n\n", cadena);
     int i = 0;
     int j = 0;
 
     int decimales = 0;
     int octales = 0;
     int hexadecimales = 0;
+    int invalidos = 0;
 
     char acumulador[30] = "";
     int tipos[100];
@@ -180,10 +169,6 @@ void validarCadenaNumeros(char * cadena){
 
         } else {
             tipos[j] = validarCadena(acumulador);
-            if(tipos[j] == 0){
-                printf("Cadena invalida encontrada, se detuvo el conteo de numeros.\n");
-                exit(-1);
-            }
             pushPilaExp(acumulador);
             strcpy(acumulador, "");
             j++;
@@ -202,6 +187,7 @@ void validarCadenaNumeros(char * cadena){
             case 3: hexadecimales++;
                 break;
             default:
+                invalidos++;
                 break;
         }
         nuevo = nuevo->sig;
@@ -210,6 +196,7 @@ void validarCadenaNumeros(char * cadena){
     char pluralDec[] = "es";
     char pluralOct[] = "es";
     char pluralHex[] = "es";
+    char pluralInv[] = "es";
 
     if(!(decimales-1))
         strcpy(pluralDec,"");
@@ -217,19 +204,20 @@ void validarCadenaNumeros(char * cadena){
         strcpy(pluralOct,"");
     if(!(hexadecimales-1))
         strcpy(pluralHex,"");
+    if(!(invalidos-1))
+        strcpy(pluralInv,"");
 
     printf("\nLa expresion ingresada tiene: \n\n");
     printf("%d decimal%s\n", decimales, pluralDec);
     printf("%d octal%s\n", octales, pluralOct);
     printf("%d hexadecimal%s\n", hexadecimales, pluralHex);
+    printf("%d invalido%s\n", invalidos, pluralInv);
 }
-
 
 const char* leerArchivo(){
     FILE* archivo;
     char cwd[100];
     getcwd(cwd, sizeof(cwd));
-
     char a;
     static char expresiones[] = "";
     char finalDir[] = "";
@@ -397,8 +385,8 @@ int cadenaHexADec(char cadena[]){
 
 int cadenaANum(cadenaNum cadena){
     switch(cadena.tipoNum){
-        case 0: printf("Cadena invalida encontrada, se detuvo el proceso\n");
-            exit(-1);
+        case 0: printf("Cadena invalida encontrada\n");
+            break;
         case 1: return cadenaDecADec(cadena.val);
         case 2: return cadenaOctADec(cadena.val);
         case 3: return cadenaHexADec(cadena.val);
@@ -461,14 +449,12 @@ int validarCadena(char cadena[]){
 void pushPilaExp(char *val){
     struct nodoString *ptr = (struct nodoString *)malloc(sizeof(struct nodoString));
 
-    if (headPilaExp == NULL)
-    {
+    if (headPilaExp == NULL){
         strcpy(ptr->val, val);
         ptr->sig = NULL;
         headPilaExp = ptr;
     }
-    else
-    {
+    else{
         strcpy(ptr->val, val);
         ptr->sig = headPilaExp;
         headPilaExp = ptr;
@@ -478,8 +464,7 @@ void pushPilaExp(char *val){
 char *popPilaExp(){
     static char item[100]="";
     struct nodoString *ptr;
-    if (headPilaExp != NULL)
-    {
+    if (headPilaExp != NULL){
         strcpy(item, headPilaExp->val);
         ptr = headPilaExp;
         headPilaExp = headPilaExp->sig;
@@ -507,8 +492,7 @@ void pushColaNum(char *x){
 
 char *popColaNum(){
     static char item[]="";
-    if (headColaNum != NULL)
-    {
+    if (headColaNum != NULL){
         strcpy(item,headColaNum->val);
         headColaNum = headColaNum->sig;
         return item;
@@ -519,8 +503,7 @@ char *popColaNum(){
 void pushPilaPostfix(char *val){
     struct nodoString *ptr = (struct nodoString *)malloc(sizeof(struct nodoString));
 
-    if (headPilaPostfix == NULL)
-    {
+    if (headPilaPostfix == NULL){
         strcpy(ptr->val, val);
         ptr->sig = NULL;
         headPilaPostfix = ptr;
@@ -536,8 +519,7 @@ void pushPilaPostfix(char *val){
 char *popPilaPostfix(){
     static char item[100]="";
     struct nodoString *ptr;
-    if (headPilaPostfix != NULL)
-    {
+    if (headPilaPostfix != NULL){
         strcpy(item, headPilaPostfix->val);
         ptr = headPilaPostfix;
         headPilaPostfix = headPilaPostfix->sig;
@@ -555,10 +537,7 @@ void separarPorTerminos(char cadena[]){
     long sizeChar = strlen(cadena);
     while(sizeChar + 1 > i){
         if(cadena[i] != '+' && cadena[i] != '-' && cadena[i] != '*' && cadena[i] != '&' && cadena[i] != '\0' && cadena[i] != ' ') {
-
-
             strncat(acumulador, &cadena[i], 1);
-
         } else{
             char stringResult[30];
 
@@ -566,16 +545,18 @@ void separarPorTerminos(char cadena[]){
                     .tipoNum=validarCadena(acumulador)
             };
 
+            if(cadenaNum1.tipoNum == 0){
+                printf("Se detuvo el proceso porque se encontraron expresiones invalidas");
+                exit(-1);
+            }
+
             strcpy(cadenaNum1.val, acumulador);
 
             int decimalResult = cadenaANum(cadenaNum1);
-
 //            Convierte de int a string
             sprintf(stringResult, "%d", decimalResult);
-
 //            agregar a la cola lo acumulado de la expresion strings de decimales
             pushPilaExp(stringResult);
-
 //            Vaciar acumulador y agregar operador a la cola
             strcpy(acumulador, "");
             if(cadena[i] == '+' || cadena[i] == '-' || cadena[i] == '*'){
@@ -656,9 +637,9 @@ int darValor(){
         return cadenaDecADec(dato);
     else{
         switch(dato[0]){
-            case '+': return sum(); break;
-            case '-': return rest(); break;
-            case '*': return mult(); break;
+            case '+': return sum();
+            case '-': return rest();
+            case '*': return mult();
         }
     }
 
