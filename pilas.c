@@ -238,16 +238,16 @@ const char* leerArchivo(){
     int length = strlen(cwd);
 
     for (int i = 0; i < length-1; i++) {
-        if(cwd[i] == '/' && cwd[i]){
+        if((cwd[i] == '/' || cwd[i] == '\\') && cwd[i]){
             lastBarra = i;
         }
     }
 
-    for (int i = 0; i < lastBarra; ++i) {
+    for (int i = 0; i < lastBarra+1; ++i) {
         strncat(finalDir, &cwd[i], 1);
     }
 
-    archivo = fopen(strcat(finalDir, "/expresiones.txt"), "r");
+    archivo = fopen(strcat(finalDir, "expresiones.txt"), "r");
 
     if(archivo == NULL){
         printf("[ERROR] EL ARCHIVO NO SE PUEDE ABRIR.\n");
