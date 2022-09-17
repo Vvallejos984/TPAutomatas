@@ -48,12 +48,10 @@ struct colaNumeros *tailColaNumerosVarios;
 //Estructuras para validación y cola de expresión inicial
 struct nodoNum *headPilaNum = NULL;
 
-struct nodoString *headColaExp = NULL;
-struct nodoString *tailColaExp = NULL;
+struct nodoString *headPilaExp = NULL;
 
 //Estructuras para conversión de expresión
-struct nodoString *headColaPolaca = NULL;
-struct nodoString *tailColaPolaca = NULL;
+struct nodoString *headPilaPostfix = NULL;
 
 struct nodoString *headColaNum = NULL;
 struct nodoString *tailColaNum = NULL;
@@ -71,18 +69,21 @@ int simboloCoincide(char, char[]);
 int validarCadena(char[]);
 int validarMultipleCadena(char[]);
 void separarPorTerminos(char[]);
-void pushColaExp(char*);
-char * popColaExp();
-void pushColaPolaca(char*);
-char * popColaPolaca();
+void pushPilaExp(char*);
+char * popPilaExp();
+void pushPilaPostfix(char*);
+char * popPilaPostfix();
 void pushColaNum(char*);
 char * popColaNum();
 void vaciarColaNum();
 void vaciarPilaOper();
-void vaciarColaPolaca();
-void infijaAPolaca();
+void vaciarPilaPostfix();
+void infijaAPostfix();
+
 const char* leerArchivo();
+
 void validarCadenaNumeros(char *);
+void invertirPilaPostfix();
 
 int mult();
 int sum();
@@ -101,8 +102,9 @@ int main() {
     char opcion2;
     char cadena[100] = "";
 
+    system("cls");
     printf("Quiero ingresar la expresion mediante: \n");
-    printf("1. Archivo de texto: \n");
+    printf("\n1. Archivo de texto: \n");
     printf("2. Consola: \n");
     printf("3. No quiero resolver una expresion solo quiero contar numeros: \n");
 
@@ -110,26 +112,31 @@ int main() {
 
     switch (opcion1) {
         case '1':
+            system("cls");
             printf("Elegiste ingresar la expresion por archivo de texto.\n");
             const char *res = leerArchivo();
             strcpy(cadena, res);
             break;
         case '2':
+            system("cls");
             printf("Elegiste ingresar la expresion por consola: \n");
             scanf("%s", cadena);
             break;
         case '3':
+            system("cls");
             printf("Quiero contar numeros desde: \n");
             printf("1. Archivo de texto: \n");
             printf("2. Consola: \n");
             scanf(" %c", &opcion2);
             switch (opcion2) {
                 case '1':
+                    system("cls");
                     printf("Elegiste ingresar numeros por archivo de texto.\n");
                     const char *resp = leerArchivo();
                     strcpy(cadena, resp);
                     break;
                 case '2':
+                    system("cls");
                     printf("Elegiste ingresar numeros por consola: \n");
                     scanf("%s", cadena);
                     break;
@@ -142,24 +149,20 @@ int main() {
             printf("NO SE ELIGIO METODO DE INGRESO");
             break;
     }
-
+    system("cls");
     if(opcion1 == '3'){
         validarCadenaNumeros(cadena);
     }else{
         separarPorTerminos(cadena);
-        infijaAPolaca();
-        printf("\nResultado = %d",darValor());
+        infijaAPostfix();
+        printf("\nResultado:\n\n%s = %d\n", cadena, darValor());
     }
-
-//   TODO
-//1. Funciones que repiten logica
-//2. Que pueda leer strings de archivos externos (semi done)
-//3. Contar cuantos numeros de cada tipo hay separados por &
 }
 //-----------------------------------------
 
 void validarCadenaNumeros(char * cadena){
-    printf("Cadena leida del archivo de texto: %s\n", cadena);
+    system("cls");
+    printf("Cadena recibida: %s\n\n", cadena);
     int i = 0;
     int j = 0;
 
@@ -176,15 +179,15 @@ void validarCadenaNumeros(char * cadena){
 
         } else {
             tipos[j] = validarCadena(acumulador);
-            pushColaExp(acumulador);
+            pushPilaExp(acumulador);
             strcpy(acumulador, "");
             j++;
         }
         i++;
     }
     i = 0;
-//    printf("Listado de todos los elementos de la cola.\n");
-    struct nodoString *nuevo = headColaExp;
+
+    struct nodoString *nuevo = headPilaExp;
     while (nuevo != NULL){
         switch (tipos[i]) {
             case 1: decimales++;
@@ -196,14 +199,24 @@ void validarCadenaNumeros(char * cadena){
             default:
                 break;
         }
-//        printf("Valor en la cola: %s y su tipo: %i\n", valorAlmacenado, tipos[i]);
         nuevo = nuevo->sig;
         i++;
     }
-    printf("La expresion ingresada tiene: \n");
-    printf("%d decimal/es\n", decimales);
-    printf("%d octal/es\n", octales);
-    printf("%d hexadecimal/es\n", hexadecimales);
+    char pluralDec[] = "es";
+    char pluralOct[] = "es";
+    char pluralHex[] = "es";
+
+    if(!(decimales-1))
+        strcpy(pluralDec,"");
+    if(!(octales-1))
+        strcpy(pluralOct,"");
+    if(!(hexadecimales-1))
+        strcpy(pluralHex,"");
+
+    printf("\nLa expresion ingresada tiene: \n\n");
+    printf("%d decimal%s\n", decimales, pluralDec);
+    printf("%d octal%s\n", octales, pluralOct);
+    printf("%d hexadecimal%s\n", hexadecimales, pluralHex);
 }
 
 
@@ -269,7 +282,6 @@ void pushPilaNum(int val){
         ptr->sig = headPilaNum;
         headPilaNum = ptr;
     }
-    //printf("Pushed %d\n", headPilaNum->val); //Debug message
 }
 
 int popPilaNum(){
@@ -313,7 +325,7 @@ char *popPilaOper(){
         free(ptr);
         return item;
     }
-    return 0;
+    return "";
 }
 
 int cadenaDecADec(char cadena[]){
@@ -361,8 +373,13 @@ int cadenaHexADec(char cadena[]){
     while(cadena[i]!='\0'){
         if(isdigit(cadena[i]))
             pushPilaNum(cadena[i]-'0');
-        else
-            pushPilaNum(cadena[i]-'A'+10);
+        else{
+            if(cadena[i]-'a'<0)
+                pushPilaNum(cadena[i]-'A'+10);//017-0x2a+55
+            else
+                pushPilaNum(cadena[i]-'a'+10);
+        }
+                     
         i+=1;
         size+=1;
     }
@@ -384,7 +401,6 @@ int cadenaANum(cadenaNum cadena){
 int simboloCoincide(char input, char carac[]){
     int i = 0;
     while(carac[i]!='\0'){
-//        printf("%c == %c\n",input,carac[i]);
         if(input == carac[i])
             return 1;
         i+=1;
@@ -412,23 +428,18 @@ int validarCadena(char cadena[]){
             break;
         } 
         int caracterValido = 0;
-//        printf("Estado actual: %d\n\n", estado); //Debug message
         for(int i=0; i<6; i++){
-//            printf("Mirando columna %d\n", i); //Debug message
             if(simboloCoincide(cadena[caracter], terminalesDecOctHex[i])){
                 estado = estadosAutomata[estado][i];
-//                printf("Cambio a estado %d\n", estado);
                 caracterValido = 1;
                 break;
             }
         }
         if(!caracterValido){
             estado=7;
-//            printf("Cambio a estado %d\n", estado); //Debug message
         }
 
         else{
-//            printf("Caracter '%c' OK\n\n", cadena[caracter]); //Debug message
             caracter+=1;
         }
         
@@ -440,29 +451,35 @@ int validarCadena(char cadena[]){
     return tipo;
 }
 
-void pushColaExp(char *x){
-    struct nodoString *nuevo;
-    nuevo=malloc(sizeof(struct nodoString));
-    strcpy(nuevo->val, x);
-    nuevo->sig = NULL;
-    if (headColaExp == NULL){
-        headColaExp = nuevo;
-        tailColaExp = nuevo;
+void pushPilaExp(char *val){
+    struct nodoString *ptr = (struct nodoString *)malloc(sizeof(struct nodoString));
+
+    if (headPilaExp == NULL)
+    {
+        strcpy(ptr->val, val);
+        ptr->sig = NULL;
+        headPilaExp = ptr;
     }
-    else{
-        tailColaExp->sig = nuevo;
-        tailColaExp = nuevo;
+    else
+    {
+        strcpy(ptr->val, val);
+        ptr->sig = headPilaExp;
+        headPilaExp = ptr;
     }
 }
 
-char *popColaExp(){
-    static char item[]="";
-    if (headColaExp != NULL){
-        strcpy(item,headColaExp->val);
-        headColaExp = headColaExp->sig;
+char *popPilaExp(){
+    static char item[100]="";
+    struct nodoString *ptr;
+    if (headPilaExp != NULL)
+    {
+        strcpy(item, headPilaExp->val);
+        ptr = headPilaExp;
+        headPilaExp = headPilaExp->sig;
+        free(ptr);
         return item;
     }
-    return 0;
+    return "";
 }
 
 void pushColaNum(char *x){
@@ -492,43 +509,36 @@ char *popColaNum(){
     return "0";
 }
 
-void pushColaPolaca(char *x){
-    struct nodoString *nuevo;
-    nuevo=malloc(sizeof(struct nodoString));
-    strcpy(nuevo->val, x);
-    nuevo->sig = NULL;
-    if (headColaPolaca == NULL){
-        headColaPolaca = nuevo;
-        tailColaPolaca = nuevo;
+void pushPilaPostfix(char *val){
+    struct nodoString *ptr = (struct nodoString *)malloc(sizeof(struct nodoString));
+
+    if (headPilaPostfix == NULL)
+    {
+        strcpy(ptr->val, val);
+        ptr->sig = NULL;
+        headPilaPostfix = ptr;
     }
-    else{
-        tailColaPolaca->sig = nuevo;
-        tailColaPolaca = nuevo;
+    else
+    {
+        strcpy(ptr->val, val);
+        ptr->sig = headPilaPostfix;
+        headPilaPostfix = ptr;
     }
-    printf("Recibido %s\n", x);
 }
 
-char *popColaPolaca(){
-    static char item[]="";
-    if (headColaPolaca != NULL)
+char *popPilaPostfix(){
+    static char item[100]="";
+    struct nodoString *ptr;
+    if (headPilaPostfix != NULL)
     {
-        strcpy(item,headColaPolaca->val);
-        headColaPolaca = headColaPolaca->sig;
+        strcpy(item, headPilaPostfix->val);
+        ptr = headPilaPostfix;
+        headPilaPostfix = headPilaPostfix->sig;
+        free(ptr);
         return item;
     }
-    return 0;
+    return "";
 }
-
-//void recorrerCola(){
-//    struct nodoString *reco = headColaExp;
-//    printf("Listado de todos los elementos de la cola.\n");
-//    while (reco != NULL)
-//    {
-//        printf("%s - ", reco->val);
-//        reco = reco->sig;
-//    }
-//    printf("\n");
-//}
 
 // 1. Convertir todos los numeros de X a decimal, separando por terminos (+, -, *)
 void separarPorTerminos(char cadena[]){
@@ -536,18 +546,14 @@ void separarPorTerminos(char cadena[]){
     char acumulador[30] = "";
 
     long sizeChar = strlen(cadena);
-    printf("Size of the expression: %ld\n", sizeChar);
     while(sizeChar + 1 > i){
-//        Cuando detecta \0 no analiza lo que paso (se soluciona con sizeof xd)
         if(cadena[i] != '+' && cadena[i] != '-' && cadena[i] != '*' && cadena[i] != '&' && cadena[i] != '\0' && cadena[i] != ' ') {
 
-//            printf("Actualmente analizando en if: %c\n", cadena[i]);
+
             strncat(acumulador, &cadena[i], 1);
 
         } else{
             char stringResult[30];
-
-//            printf("Actualmente analizando en else: %c\n", cadena[i]);
 
             cadenaNum cadenaNum1 = {
                     .tipoNum=validarCadena(acumulador)
@@ -560,16 +566,14 @@ void separarPorTerminos(char cadena[]){
 //            Convierte de int a string
             sprintf(stringResult, "%d", decimalResult);
 
-            printf("** Resultado que se va a poner en cola en decimal: %s\n", stringResult);
-
 //            agregar a la cola lo acumulado de la expresion strings de decimales
-            pushColaExp(stringResult);
+            pushPilaExp(stringResult);
 
 //            Vaciar acumulador y agregar operador a la cola
             strcpy(acumulador, "");
             if(cadena[i] == '+' || cadena[i] == '-' || cadena[i] == '*'){
                 strncat(acumulador, &cadena[i], 1);
-                pushColaExp(acumulador);
+                pushPilaExp(acumulador);
                 strcpy(acumulador, "");
             }  
         }
@@ -579,69 +583,68 @@ void separarPorTerminos(char cadena[]){
 
 void vaciarColaNum(){
     while(headColaNum!=NULL){
-        pushColaPolaca(popColaNum());
-        printf("Ok num\n");
+        pushPilaPostfix(popColaNum());
     }
 }
 
 void vaciarPilaOper(){
 
     while(headPilaOper!=NULL){
-        pushColaPolaca(popPilaOper());
-    }
-}
-void vaciarColaPolaca(){
-    while(headColaPolaca!=NULL){
-        printf("%s", popColaPolaca());
+        pushPilaPostfix(popPilaOper());
     }
 }
 
-void infijaAPolaca(){
+void infijaAPostfix(){
     int i = 0;
-    printf("\nTest1\n");
-    while(headColaExp!=NULL){
+    while(headPilaExp!=NULL){
         if(i%2){
-            printf("\nOperador\n");
-            pushPilaOper(popColaExp());
+            pushPilaOper(popPilaExp());
 
             if(!strcmp(headPilaOper->val,"+") || !strcmp(headPilaOper->val,"-")){
                 vaciarPilaOper();
                 vaciarColaNum();
             }
         }else{
-            printf("\nNumero\n");
-            pushColaNum(popColaExp());
+            pushColaNum(popPilaExp());
         }
         i++;
     }
     vaciarPilaOper();
     vaciarColaNum();
+    invertirPilaPostfix();
+}
+
+void invertirPilaPostfix(){
+    while(headPilaPostfix!=NULL){
+        pushPilaExp(popPilaPostfix());
+    }
+    headPilaPostfix=headPilaExp; 
 }
 
 int mult(){
-    int a = darValor();
     int b = darValor();
+    int a = darValor();
 
     return a*b;
 }
 
 int sum(){
-    int a = darValor();
     int b = darValor();
+    int a = darValor();
 
     return a+b;
 }
 
 int rest(){
-    int a = darValor();
     int b = darValor();
+    int a = darValor();
 
     return a-b;
 }
 
 int darValor(){
     char * dato = "";
-    dato = popColaPolaca();
+    dato = popPilaPostfix();
     if(isdigit(dato[0]) || isdigit(dato[1]))
         return cadenaDecADec(dato);
     else{
@@ -653,10 +656,3 @@ int darValor(){
     }
 
 }
-
-
-// Crear 2 colas para numeros y para notacion polaca y Pila para operadores
-// Sacar elementos de la primera cola
-// 2. Convertirlos a string para ponerlos en la cola (numeros)
-// 3. Agregar los operadores en una pila
-// 4. Descomponer la cola y operar
