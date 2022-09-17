@@ -232,7 +232,6 @@ const char* leerArchivo(){
 
     char a;
     static char expresiones[] = "";
-    char finalDir[] = "";
 
     int lastBarra = 0;
     int length = strlen(cwd);
@@ -242,12 +241,13 @@ const char* leerArchivo(){
             lastBarra = i;
         }
     }
+    printf("%s\n",cwd);
+    strcat(cwd, "\\expresiones.txt");
+    printf("%s\n",cwd);
+    getchar();
+    archivo = fopen(cwd, "r");
 
-    for (int i = 0; i < lastBarra; ++i) {
-        strncat(finalDir, &cwd[i], 1);
-    }
 
-    archivo = fopen(strcat(finalDir, "/expresiones.txt"), "r");
 
     if(archivo == NULL){
         printf("[ERROR] EL ARCHIVO NO SE PUEDE ABRIR.\n");
